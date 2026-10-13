@@ -7,23 +7,23 @@ from ..models.node import Node
 class AStarSearch:
     @staticmethod
     def search(grid: Grid) -> Solution:
-        """Find path between two points in a grid using A* Search
-
-        Args:
-            grid (Grid): Grid of points
-
-        Returns:
-            Solution: Solution found
-        """
-        # Initialize root node
         root = Node("", state=grid.initial, cost=0, parent=None, action=None)
+        reached = {root.state: root.cost}
+        frontier = PriorityQueueFrontier()
+        frontier.add(root, root.cost + grid.heuristic(root))
+        while not frontier.is_empty():
+            node = frontier.pop()
 
-        # Initialize reached with the initial state
-        reached = {}
-        reached[root.state] = root.cost
+            if grid.objective_test(node.state):
+                return Solution(node, reached)
 
-        # Initialize frontier with the root node
-        # TODO Complete the rest!!
-        # ...
+            for action in grid.actions(node.state):
+                successor = grid.result(node.state, action)
+                cost = node.cost + grid.individual_cost(node.state, action)
+
+                if successor not in reached or cost < reached[successor]:
+                    son = Node("", successor, cost, parent=node, action=action)
+                    reached[successor] = cost
+                    frontier.add(son, cost + grid.heuristic(son))
 
         return NoSolution(reached)
